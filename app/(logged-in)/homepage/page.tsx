@@ -19,11 +19,6 @@ export default async function HomePage(){
                     <div>
                         {
                             products.map((product)=>(
-                                // <div>
-                                //     <h1>{product.name}</h1>
-                                //     <h2>{product.price}</h2>
-                                //     <h2>{product.itemWeight}</h2>
-                                // </div>
                                 <ProductCard 
                                     productName={product.name} 
                                     weight={product.itemWeight}
