@@ -20,9 +20,7 @@ export default async function HomePage(){
                         {
                             products.map((product)=>(
                                 <ProductCard 
-                                    productName={product.name} 
-                                    weight={product.itemWeight}
-                                    price={product.price}
+                                    productId={product.id}
                                 />
 
                             ))
