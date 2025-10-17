@@ -18,7 +18,7 @@ model User {
 
 model CartItems {
   id          String  @id @default(uuid())
-  productName String
+  productName String?
   productId   String
   product     Product @relation(fields: [productId], references: [id])
   userId      String
