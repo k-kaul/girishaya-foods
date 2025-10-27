@@ -17,13 +17,15 @@ model User {
 }
 
 model CartItems {
-  id          String  @id @default(uuid())
-  productName String?
-  productId   String
-  product     Product @relation(fields: [productId], references: [id])
-  userId      String
-  user        User    @relation(fields: [userId], references: [id])
-  quantity    String
+  // id          String  @id @default(uuid())
+  // productName String
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  quantity  String
+
+  @@id([productId, userId])
 }
 
 model Product {
