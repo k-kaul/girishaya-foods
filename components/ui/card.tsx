@@ -1,4 +1,4 @@
-import addToCart from "@/lib/addToCart";
+import {addToCart} from "@/lib/addToCart";
 import { Card } from "flowbite-react";
 import Link from "next/link";
 
