@@ -11,21 +11,21 @@ datasource db {
 model User {
   id          String      @id @default(uuid())
   name        String
-  email       String
+  email       String      @unique
   phoneNumber String
-  cart        CartItems[]
+  cartItems   CartItems[]
 }
 
 model CartItems {
-  // id          String  @id @default(uuid())
-  // productName String
+  id        String @id @default(uuid())
+  quantity  Int
   productId String
-  product   Product @relation(fields: [productId], references: [id])
   userId    String
-  user      User    @relation(fields: [userId], references: [id])
-  quantity  String
 
-  @@id([productId, userId])
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([productId, userId])
 }
 
 model Product {
@@ -35,7 +35,7 @@ model Product {
   itemWeight   String
   price        Int
   images       Images[]
-  CartItems    CartItems[]
+  cartItems    CartItems[]
 }
 
 model Images {
