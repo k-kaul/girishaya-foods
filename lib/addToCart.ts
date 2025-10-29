@@ -1,8 +1,10 @@
+'use server'
+
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "./prisma";
 
-export default async function addToCart({
+export async function addToCart({
     productId,
 }: {
     productId: string;
@@ -16,12 +18,36 @@ export default async function addToCart({
             data: {
                 productId,
                 userId,
-                quantity: String({increment:1})
+                quantity: 1,
             }
         })
 
         return {
             message: "added item to cart"
         }
+    }
+}
+
+export async function decrementFromCart({
+    productId,
+}: {
+    productId: string;
+}){
+    const {isAuthenticated, userId} = await auth()
+
+    if(!isAuthenticated) return redirect("/sign-in");
+
+    if(productId){
+        await prisma.cartItems.update({
+            where: {
+                productId_userId: {
+                    productId,
+                    userId
+                }
+            },
+            data: {
+                quantity: {decrement:1}
+            }
+        })
     }
 }

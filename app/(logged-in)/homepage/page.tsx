@@ -1,16 +1,14 @@
 import { ProductCard } from "@/components/ui/card";
-import getProducts from "@/lib/getProducts";
-import { auth } from "@clerk/nextjs/server"
+import getAllProducts from "@/lib/getAllProducts";
+import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-export default async function HomePage(){
-    
-    const {isAuthenticated} = await auth();
+export default async function HomePage(){    
+    const user = await currentUser();
+    if (!user) return redirect('/sign-in');
 
-    if (!isAuthenticated) return redirect('/sign-in');
+    const allProducts = await getAllProducts();
 
-    const products = await getProducts();
-    
     return (
         <div>
             <div>
@@ -18,11 +16,14 @@ export default async function HomePage(){
                 <div>
                     <div>
                         {
-                            products.map((product)=>(
-                                <ProductCard 
+                            allProducts.map((product:any)=>(
+                                <ProductCard
+                                    key={Math.random()}
                                     productId={product.id}
+                                    productName={product.name}
+                                    weight={product.itemWeight}
+                                    price={product.price}
                                 />
-
                             ))
                         }
                     </div>

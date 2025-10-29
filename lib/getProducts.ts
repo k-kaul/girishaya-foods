@@ -1,9 +1,0 @@
-import { prisma } from "./prisma";
-
-export default async function getProducts(){
-    const allProducts = await prisma.product.findMany();
-
-    if(!allProducts) throw new Error('Error in fetching all products');
-
-    return allProducts
-}
