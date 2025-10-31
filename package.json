@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.33.5",
-    "@prisma/client": "^6.17.1",
+    "@prisma/client": "^6.18.0",
     "clerk": "^0.8.3",
     "flowbite-react": "^0.12.9",
     "inngest": "^3.44.3",
@@ -25,7 +25,7 @@
     "@types/node": "^20.19.23",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "prisma": "^6.17.1",
+    "prisma": "^6.18.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
