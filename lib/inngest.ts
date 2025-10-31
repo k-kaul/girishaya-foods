@@ -21,7 +21,7 @@ export const addUserToDb = inngest.createFunction(
                 id,
                 name: first_name + ' ' + last_name,
                 email: email_addresses[0].email_address,
-                phoneNumber: phone_numbers[0].phone_number ||''
+                // phoneNumber: phone_numbers[0].phone_number ||''
             }
         })
     }
@@ -42,7 +42,7 @@ export const updateUserData = inngest.createFunction(
                 id,
                 name: first_name + ' ' + last_name,
                 email: email_addresses[0].email_address,
-                phoneNumber: phone_numbers[0].phone_number ||""
+                // phoneNumber: phone_numbers[0].phone_number ||""
             },
         })
     }
