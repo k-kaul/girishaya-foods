@@ -55,10 +55,16 @@ export const removeUserData = inngest.createFunction(
     async ({ event }) => {
         const { id } = event.data;
         
-        await prisma.user.delete({
-            where: {
-                id
+        try {
+            if(id){
+                await prisma.user.delete({
+                    where: {
+                        id
+                    }
+                })
             }
-        })
+        } catch (error) {
+           throw new Error('error in deleting user info') 
+        }
     }
 )
