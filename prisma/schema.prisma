@@ -14,6 +14,7 @@ model User {
   email       String      @unique
   phoneNumber String?
   cartItems   CartItems[]
+  role        Role        @default(CUSTOMER)
 }
 
 model CartItems {
@@ -43,4 +44,9 @@ model Images {
   imageLink String
   productId String
   product   Product @relation(fields: [productId], references: [id])
+}
+
+enum Role {
+  CUSTOMER
+  SELLER
 }
