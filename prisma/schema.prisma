@@ -23,28 +23,28 @@ model CartItems {
   productId String
   userId    String
 
-  product Product @relation(fields: [productId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
+  // product Product @relation(fields: [productId], references: [id])
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([productId, userId])
 }
 
 model Product {
-  id           String      @id @default(uuid())
+  id           String   @id @default(uuid())
   name         String
   itemQuantity Int
   itemWeight   String
   price        Int
-  images       Images[]
-  cartItems    CartItems[]
+  images       String[]
+  // cartItems    CartItems[]
 }
 
-model Images {
-  id        String  @id @default(uuid())
-  imageLink String
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-}
+// model Images {
+//   id        String  @id @default(uuid())
+//   imageLink String
+//   productId String
+//   product   Product @relation(fields: [productId], references: [id])
+// }
 
 enum Role {
   CUSTOMER
