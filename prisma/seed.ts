@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   
   await prisma.cartItems.deleteMany();
-  await prisma.images.deleteMany();
+  // await prisma.images.deleteMany();
   await prisma.product.deleteMany();
   await prisma.user.deleteMany();
 
@@ -33,12 +33,12 @@ async function main() {
       itemQuantity: 100,
       itemWeight: "1kg",
       price: 3,
-      images: {
-        create: [
-          { imageLink: "https://via.placeholder.com/150?text=Apple" },
-          { imageLink: "https://via.placeholder.com/150?text=Apple+2" },
-        ],
-      },
+      // images: {
+      //   create: [
+      //     { imageLink: "https://via.placeholder.com/150?text=Apple" },
+      //     { imageLink: "https://via.placeholder.com/150?text=Apple+2" },
+      //   ],
+      // },
     },
   });
 
@@ -48,11 +48,11 @@ async function main() {
       itemQuantity: 200,
       itemWeight: "1kg",
       price: 2,
-      images: {
-        create: [
-          { imageLink: "https://via.placeholder.com/150?text=Banana" },
-        ],
-      },
+      // images: {
+      //   create: [
+      //     { imageLink: "https://via.placeholder.com/150?text=Banana" },
+      //   ],
+      // },
     },
   });
 
@@ -62,11 +62,11 @@ async function main() {
       itemQuantity: 150,
       itemWeight: "1kg",
       price: 4,
-      images: {
-        create: [
-          { imageLink: "https://via.placeholder.com/150?text=Orange" },
-        ],
-      },
+      // images: {
+      //   create: [
+      //     { imageLink: "https://via.placeholder.com/150?text=Orange" },
+      //   ],
+      // },
     },
   });
 
