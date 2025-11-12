@@ -1,13 +1,21 @@
+import { NextResponse } from "next/server";
 import { prisma } from "./prisma";
 
 export default async function sellerAuth(userId:string){
-    const user = await prisma.user.findFirst({
-        where: {
-            id: userId
-        }
-    })
+    try {
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId
+            }
+        })
 
-    if(user?.role === "SELLER") return true
+        if(user?.role === "SELLER") return true
 
-    return false
+        return false
+    } catch (error) {
+        return NextResponse.json({
+            success: false,
+            message: "Not a seller account"
+        })
+    }
 }
