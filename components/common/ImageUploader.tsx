@@ -1,13 +1,14 @@
 "use client" // This component must be a client component
 
 import {
+    Image,
     ImageKitAbortError,
     ImageKitInvalidRequestError,
     ImageKitServerError,
     ImageKitUploadNetworkError,
     upload,
 } from "@imagekit/next";
-import Image from "next/image";
+
 import { useRef, useState } from "react";
 
 // ImageUploader component demonstrates file uploading using ImageKit's Next.js SDK.
@@ -16,11 +17,8 @@ const ImageUploader = () => {
     const [quantity,setQuantity] = useState(0);
     const [weight,setWeight] = useState('');
     const [itemPrice,setItemPrice] = useState(0);
-    const [images,setImages] = useState<string[]>([])
-    
-    
-    // State to keep track of the current upload progress (percentage)
-    const [progress, setProgress] = useState(0);
+    const [images,setImages] = useState<string[]>([]);
+    const [progressList, setProgressList] = useState<number[]>([])
 
     // Create a ref for the file input element to access its files easily
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -40,7 +38,7 @@ const ImageUploader = () => {
     const authenticator = async () => {
         try {
             // Perform the request to the upload authentication endpoint.
-            const response = await fetch("/api/upload-auth");
+            const response = await fetch("/api/product/upload-auth");
             if (!response.ok) {
                 // If the server response is not successful, extract the error text for debugging.
                 const errorText = await response.text();
@@ -69,72 +67,69 @@ const ImageUploader = () => {
      * - Catches and processes errors accordingly.
      */
     const handleUpload = async (e:any) => {       
+        let uploadedImageUrls: string[]=[];
         e.preventDefault()
        // Access the file input element using the ref
+       
         const fileInput = fileInputRef.current;
+        
         if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
             alert("Please select a file to upload");
             return;
-        }
+        }      
 
-        // Retrieve authentication parameters for the upload.
-        let authParams;
-        try {
-            authParams = await authenticator();
-        } catch (authError) {
-            console.error("Failed to authenticate for upload:", authError);
-            return;
-        }
-        const { signature, expire, token, publicKey } = authParams;
+        // Extract the files from input
+        const files = Array.from(fileInput.files);
+        //creating progress tracker array for each file uploaded
+        setProgressList(new Array(files.length).fill(0));
 
-        // Extract the first file from the file input
-        const uploadedUrls: string[] = [];
-
-        if(fileInput){
-            for(const file of Array.from(fileInput.files)){
-                // Call the ImageKit SDK upload function with the required parameters and callbacks.
-                try {
-                    const uploadResponse = await upload({
-                        // Authentication parameters
-                        expire,
-                        token,
-                        signature,
-                        publicKey,
-                        file,
-                        fileName: file.name, // Optionally set a custom file name
-                        // Progress callback to update upload progress state
-                        onProgress: (event) => {
-                            setProgress((event.loaded / event.total) * 100);
-                        },
-                        // Abort signal to allow cancellation of the upload if needed.
-                        abortSignal: abortController.signal,
+        //creating uploads for each file
+        const fileUploads = files.map(async (file,index)=>{
+            //each uploaded file has its own abort control
+            const { signature, expire, token, publicKey } = await authenticator();
+            const abortController = new AbortController();
+            return upload({
+                file,
+                fileName:file.name,
+                signature, 
+                expire, 
+                token, 
+                publicKey,
+                onProgress: (event) => {
+                    setProgressList(prev => {
+                        const updated = [...prev];
+                        updated[index] = (event.loaded / event.total) * 100;
+                        return updated;
                     });
 
-                    if(uploadResponse.url){
-                        uploadedUrls.push(uploadResponse.url)
-                    }
-                                        
-                    console.log("Upload response:", uploadResponse);
-                } catch (error) {
-                    // Handle specific error types provided by the ImageKit SDK.
-                    if (error instanceof ImageKitAbortError) {
-                        console.error("Upload aborted:", error.reason);
-                    } else if (error instanceof ImageKitInvalidRequestError) {
-                        console.error("Invalid request:", error.message);
-                    } else if (error instanceof ImageKitUploadNetworkError) {
-                        console.error("Network error:", error.message);
-                    } else if (error instanceof ImageKitServerError) {
-                        console.error("Server error:", error.message);
-                    } else {
-                        // Handle any other errors that may occur.
-                        console.error("Upload error:", error);
-                    }
-                }
-                
+                },
+                abortSignal: abortController.signal
+            })
+        })
+            
+        try {
+            const results = await Promise.all(fileUploads);
+            if(!results) return
+            const urls = results.map(r=>r.url).filter(((url): url is string => Boolean(url))); 
+            uploadedImageUrls = urls
+            setImages(uploadedImageUrls)
+        } catch (error) {
+            // Handle specific error types provided by the ImageKit SDK.
+            if (error instanceof ImageKitAbortError) {
+                console.error("Upload aborted:", error.reason);
+            } else if (error instanceof ImageKitInvalidRequestError) {
+                console.error("Invalid request:", error.message);
+            } else if (error instanceof ImageKitUploadNetworkError) {
+                console.error("Network error:", error.message);
+            } else if (error instanceof ImageKitServerError) {
+                console.error("Server error:", error.message);
+            } else {
+                // Handle any other errors that may occur.
+                console.error("Upload error:", error);
             }
-            setImages(uploadedUrls);
+            }
 
-            const payload = {name: itemName, itemQuantity:quantity, itemWeight:weight, price:itemPrice, images: uploadedUrls}
+            const payload = {name: itemName, itemQuantity:quantity, itemWeight:weight, price:itemPrice, images: images}
 
             try {
                 await fetch('/api/product/add', {
@@ -145,58 +140,115 @@ const ImageUploader = () => {
             } catch (error) {
                 return
             }
-
-            console.log("product created",payload)
         }  
-    }
+
         
     return (
-        <form onSubmit={handleUpload}>
-            {/* File input element using React ref */}
-            <input 
-                name="name" 
-                placeholder="Product Name" 
-                value={itemName}
-                onChange={(e) => setItemName(e.target.value)}
-                required
-            />
-            <input 
-                name="quantity" 
-                placeholder="Quantity" 
-                value={quantity}
-                onChange={(e)=> setQuantity(Number(e.target.value))}
-                required
-            />
-            <input 
-                name="weight" 
-                placeholder="Weight (in gm)"
-                value={weight}
-                onChange={(e)=> setWeight(e.target.value)}
-                required
-            />
-            <input 
-                name="price" 
-                placeholder="Price" 
-                value={itemPrice}
-                onChange={(e)=>setItemPrice(Number(e.target.value))}
-                required
-            />
-            <input type="file" ref={fileInputRef} multiple/>
-            {/* Button to trigger the upload process */}
-            <button type="submit">
-                Upload Product Images
-            </button>
-            <br />
-            {/* Display the current upload progress */}
-            Upload progress: <progress value={progress} max={100}></progress>
-            <div className="preview-grid">
-                {
-                    images.map((url)=>(
-                        <Image key={url} src={url} alt="" width={100} height={100}/>
-                    ))
-                }
-            </div>
-        </form>
+        <div className="">
+            <form onSubmit={handleUpload}>
+                {/* File input element using React ref */}
+                <div className="flex flex-col gap-1 max-w-md">
+                    <label className="text-base font-medium" htmlFor="product-name">
+                        Product Name
+                    </label>
+                    <input
+                        id="product-name"
+                        type="text"
+                        placeholder="Type here"
+                        className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                        onChange={(e) => setItemName(e.target.value)}
+                        value={itemName}
+                        required
+                    />
+                </div>         
+                <div className="flex items-center gap-5 flex-wrap">
+                    <div className="flex flex-col gap-1 w-32">
+                        <label className="text-base font-medium" htmlFor="product-price">
+                            Product Price
+                        </label>
+                        <input
+                            id="product-price"
+                            type="number"
+                            placeholder="0"
+                            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                            onChange={(e) => setItemPrice(Number(e.target.value))}
+                            value={itemPrice}
+                            required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1 w-32">
+                        <label className="text-base font-medium" htmlFor="offer-price">
+                        Weight
+                        </label>
+                        <input
+                        id="offer-price"
+                        type="number"
+                        placeholder="0"
+                        className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                        onChange={(e) => setWeight(e.target.value)}
+                        value={weight}
+                        required
+                        />
+                    </div>
+                    <div className="flex flex-col gap-1 w-32">
+                        <label className="text-base font-medium" htmlFor="offer-price">
+                            Quantity
+                        </label>
+                        <input
+                            id="offer-price"
+                            type="number"
+                            placeholder="0"
+                            className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40"
+                            onChange={(e) => setQuantity(Number(e.target.value))}
+                            value={quantity}
+                            required
+                        />
+                    </div>
+                </div>
+                <div>
+                    <input type="file" ref={fileInputRef} multiple/>
+                    {/* Button to trigger the upload process */}
+                    {/* <button type="submit">
+                        Upload Product Images
+                    </button> */}
+                    <br />
+                    <div className="preview-grid">
+                        {
+                            images.map((url,index)=>(
+                                // <Image key={url} src={url} alt="" width={100} height={100}/>
+                                <label key={index} htmlFor={`image${index}`}>
+                                    <input onChange={(e) => {
+                                    // const updatedFiles = [...files];
+                                    //   updatedFiles[index] = e.target.files[0];
+                                    // setFiles(updatedFiles);
+                                    }} type="file" id={`image${index}`} hidden />
+                                    <Image
+                                        key={index}
+                                        className="max-w-24 cursor-pointer"
+                                        src={url}
+                                        alt=""
+                                        width={100}
+                                        height={100}
+                                    />
+                                </label>
+                            ))
+                        }
+                    </div>
+                    {/* Display the current upload progress */}
+                    {
+                        progressList.map((percent,index)=>(
+                            <div key={index}>
+                                File {index + 1}: <progress value={percent} max={100}></progress>
+                            </div>
+                        ))
+                    }
+                    
+                </div>
+                <button type="submit" className="px-8 py-2.5 bg-orange-600 text-white font-medium rounded">
+                    ADD
+                </button>
+            </form>
+        </div>
     );
 };
 
