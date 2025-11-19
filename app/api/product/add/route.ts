@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req:NextRequest){
     try {
         const { userId } = getAuth(req);
-        if(!userId) throw new Error("No userId provided")
+        if(!userId) throw new Error("Not signed in")
         //check if the user is a seller
         const isSeller = await sellerAuth(userId);
 
