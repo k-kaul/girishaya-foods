@@ -1,4 +1,4 @@
-"use client" // This component must be a client component
+"use client"
 
 import {
     Image,
@@ -19,6 +19,7 @@ const ImageUploader = () => {
     const [itemPrice,setItemPrice] = useState(0);
     const [images,setImages] = useState<string[]>([]);
     const [progressList, setProgressList] = useState<number[]>([])
+    const formRef = useRef(null)
 
     // Create a ref for the file input element to access its files easily
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -129,7 +130,9 @@ const ImageUploader = () => {
             }
             }
 
-            const payload = {name: itemName, itemQuantity:quantity, itemWeight:weight, price:itemPrice, images: images}
+            const payload = {
+                name: itemName, itemQuantity:quantity, itemWeight:weight, price:itemPrice, images: images
+            }
 
             try {
                 await fetch('/api/product/add', {
@@ -140,12 +143,11 @@ const ImageUploader = () => {
             } catch (error) {
                 return
             }
-        }  
-
+        }
         
     return (
         <div className="">
-            <form onSubmit={handleUpload}>
+            <form onSubmit={handleUpload} ref={formRef}>
                 {/* File input element using React ref */}
                 <div className="flex flex-col gap-1 max-w-md">
                     <label className="text-base font-medium" htmlFor="product-name">
@@ -217,11 +219,7 @@ const ImageUploader = () => {
                             images.map((url,index)=>(
                                 // <Image key={url} src={url} alt="" width={100} height={100}/>
                                 <label key={index} htmlFor={`image${index}`}>
-                                    <input onChange={(e) => {
-                                    // const updatedFiles = [...files];
-                                    //   updatedFiles[index] = e.target.files[0];
-                                    // setFiles(updatedFiles);
-                                    }} type="file" id={`image${index}`} hidden />
+                                    <input type="file" id={`image${index}`} hidden />
                                     <Image
                                         key={index}
                                         className="max-w-24 cursor-pointer"
@@ -241,8 +239,7 @@ const ImageUploader = () => {
                                 File {index + 1}: <progress value={percent} max={100}></progress>
                             </div>
                         ))
-                    }
-                    
+                    }                    
                 </div>
                 <button type="submit" className="px-8 py-2.5 bg-orange-600 text-white font-medium rounded">
                     ADD
