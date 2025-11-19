@@ -13,9 +13,6 @@ export default async function sellerAuth(userId:string){
 
         return false
     } catch (error) {
-        return NextResponse.json({
-            success: false,
-            message: "Not a seller account"
-        })
+        throw new Error('user not a seller')
     }
 }
