@@ -4,28 +4,6 @@ import { useAppContext } from "@/context/AppContext";
 import { Image } from "@imagekit/next";
 import React from "react";
 
-
-// const products = [
-//   {
-//     id: 1,
-//     title: "Unparalleled Sound",
-//     image:'https://ik.imagekit.io/iktdukrlb/390_adv_DT52AqIiF.jpg',
-//     description: "Experience crystal-clear audio with premium headphones.",
-//   },
-//   {
-//     id: 2,
-//     title: "Stay Connected",
-//     description: "Compact and stylish earphones for every occasion.",
-//     image: 'https://ik.imagekit.io/iktdukrlb/390_adv_DT52AqIiF.jpg'
-//   },
-//   {
-//     id: 3,
-//     title: "Power in Every Pixel",
-//     description: "Shop the latest laptops for work, gaming, and more.",
-//     image: 'https://ik.imagekit.io/iktdukrlb/390_adv_DT52AqIiF.jpg'
-//   },
-// ];
-
 const FeaturedProduct = () => {
     const context = useAppContext();
     if(!context) return null
