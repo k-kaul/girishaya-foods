@@ -3,18 +3,27 @@ import { currentUser } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server";
 
 export async function GET(){
-    const userId = await currentUser();
+    const user = await currentUser();
     
     try {
-        const user_id = userId?.id;
+        const user_id = user?.id;
+        const defaultNum = 1234567890;
 
-        const user = await prisma.user.findFirst({
+        const currentUser = await prisma.user.findFirst({
             where: {
                 id:user_id
             }
         })
 
-        if(!user){
+        if(!currentUser){
+            await prisma.user.create({
+                data: {
+                    name: user?.fullName || '',
+                    email:user?.emailAddresses[0].emailAddress || '',
+                    phoneNumber:user?.phoneNumbers[0].phoneNumber || '',
+                    role: 'CUSTOMER'
+                }
+            })
             return NextResponse.json({
                 success: false,
                 message: "User not found in db"
