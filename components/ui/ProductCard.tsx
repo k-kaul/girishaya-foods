@@ -1,16 +1,15 @@
 'use client'
 
-import React from 'react'
-
+import React from 'react';
 import { useAppContext } from '@/context/AppContext';
 import { Image } from '@imagekit/next';
 import { HeartIcon } from 'lucide-react';
 
-type Product= {
+export type Product= {
         id: string,
         name: string,
         images: string[],
-        description: string,
+        // description: string,
         price: number
     }
 
@@ -39,7 +38,7 @@ const ProductCard = ({ product }: {
                 </button>
             </div>
             <p className="md:text-base font-medium pt-2 w-full truncate">{product.name}</p>
-            <p className="w-full text-xs text-gray-500/70 max-sm:hidden truncate">{product.description}</p>
+            {/* <p className="w-full text-xs text-gray-500/70 max-sm:hidden truncate">{product.description}</p> */}
             <div className="flex items-end justify-between w-full mt-1">
                 <p className="text-base font-medium">{currency}{product.price}</p>
                 <button className=" max-sm:hidden px-4 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-xs hover:bg-slate-50 transition">
