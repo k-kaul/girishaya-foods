@@ -6,8 +6,6 @@ import { useAuth } from "@clerk/nextjs";
 import { Image } from "@imagekit/next";
 import axios from "axios"
 import { ExternalLink } from "lucide-react";
-
-import { NextResponse } from "next/server";
 import { useEffect, useState } from "react";
 
 interface Product {
